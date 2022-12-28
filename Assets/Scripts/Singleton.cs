@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+//Singleton 클래스는 제네릭 클래스이다
+// T 타입은 반드시 Component 클래스를 상속받은 타입이어야 한다.
+public class Singleton<T> : MonoBehaviour where T : Component
+{
+
+    //private static bool isShutDown = false;
+
+    private static T instance=null;
+    public static T Instance
+    {
+        get
+        {
+            if(instance == null)
+            {
+                // 아직 싱글톤용 인스턴스가 만들어지지 않았다. 한번도 사용된 적이 없다.
+                T obj=FindObjectOfType<T>(); // 일다 같은 타입이 있는지 찾기
+                if(obj == null)
+                {
+                    GameObject gameObject = new(); // 없으면 새로 만든다.
+                    gameObject.name = $"{typeof(T).Name}";
+                    obj=gameObject.AddComponent<T>();
+                }
+                instance = obj;
+                DontDestroyOnLoad(instance.gameObject);
+            }
+
+            return instance; //instance는 무조건 null이 아닌 값이 리턴
+        }
+    }
+
+    protected virtual void Awake()
+    {
+        if(instance==null)
+        {
+            //새롭게 만들어진 싱글톤
+            instance = this as T;
+            DontDestroyOnLoad(this.gameObject);
+        }else
+        {
+            //이 타입으로 만들어진 싱글톤이 있다
+            if(instance!=this)
+            {
+                //이미 만들어진게 내가 아니다.
+                Destroy(this.gameObject); // 나를 삭제
+            }
+        }
+    }
+
+    protected virtual void OnEnable()
+    {
+        // 씬이 로딩되면 OnSceneLoaded 함수를 실행시켜라.(SceneManager가 가지고 있는 델리게이트에 함수 추가)
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    protected virtual void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnApplicationQuit()
+    {
+       // isShutDown = true;
+    }
+
+    /// <summary>
+    /// 씬이 로딩될 때 실행될 델리게이트에 등록한 함수
+    /// </summary>
+    /// <param name="arg0">해당 씬 데이터</param>
+    /// <param name="arg1">씬 추가 모드</param>
+    private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
+    {
+        Initialize();
+    }
+
+    /// <summary>
+    /// 각종 초기화용 함수, 상속받을 클래스에서 override해서 사용할 것
+    /// </summary>
+    protected virtual void Initialize()
+    {
+        
+    }
+}
