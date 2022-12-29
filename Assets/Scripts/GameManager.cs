@@ -25,6 +25,27 @@ public class GameManager : Singleton<GameManager>
 
     int[] indexCheck=new int[7] {0,0,0,0,0,0,0}; //몇번째 indexX에 선택한 블록 갯수를 기록할 변수
 
+    
+    bool IsClick
+    {
+        get { return isClick; }
+        set
+        {
+            isClick = value;
+            if (isClick)
+            {
+
+            }
+            else
+            {
+                
+            }
+
+
+
+        }
+    }
+
     /// <summary>
     /// 모든 블록 프로퍼티
     /// </summary>
@@ -40,9 +61,19 @@ public class GameManager : Singleton<GameManager>
     public Block ThisBlock
     {
         get { return thisBlock; }
-        set { thisBlock = value; }
+        set
+        {
+            thisBlock = value;
+            if (thisBlock != null)
+            {
+                
+            }
+
+
+
+        }
     }
-    
+
     /// <summary>
     /// 현재 선택중인 블록 프로퍼티
     /// </summary>
@@ -57,6 +88,9 @@ public class GameManager : Singleton<GameManager>
         base.Awake();
 
         inputActions = new();
+
+        
+        
 
     }
 
@@ -80,11 +114,11 @@ public class GameManager : Singleton<GameManager>
         {
 
             //클릭했을때
-            isClick = true;
+            IsClick = true;
         }else if(obj.canceled)
         {
             //클릭해제했을때
-            isClick=false; 
+            IsClick=false; 
             ThisBlock = null; // 현재 선택중인 블록없음처리
             //선택했던 블록이 3개이상이라면
             if (blocks.Count > 2)

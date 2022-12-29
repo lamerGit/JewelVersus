@@ -20,12 +20,17 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
 
     //블럭이 짝수일때랑 홀수일때 선택이 달라지기 때문에 
     //짝수와 홀수 검사용 변수를 따로 만든다. 위,아래,대각선왼쪽 오른쪽
-    int[] dirEvenX = new int[6] { 1, 1, 0, -1, -1, 0 }; 
-    int[] dirEvenY = new int[6] { 1, 0, -1, 0, 1, 1 };
-    int[] dirOddX = new int[6] { 1, 1, 0, -1, -1, 0 };
-    int[] dirOddY = new int[6] { 0, -1, -1, -1, 0, 1 };
+    
+    int[] dirEvenX = new int[6] { 1, 0, -1, 1, 0, -1 };
+    int[] dirEvenY = new int[6] { 0, -1, 0, 1, 1, 1 };
+    int[] dirOddX = new int[6] { 1, 0, -1, 1, 0, -1 };
+    int[] dirOddY = new int[6] { -1, -1, -1, 0, 1, 0 };
 
     RectTransform rect; //UI로 만들었기 때문에 RectTransform을 사용
+
+    public RectTransform[] lineGruop;
+
+    int lineDir = -1;
 
     /// <summary>
     /// RectTransform 외부 참조용 프로퍼티
@@ -49,6 +54,8 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
                 Color tempColor = image.color;
                 tempColor.a = 0.5f;
                 image.color = tempColor;
+
+
             }else
             {
                 //선택해제시 이미지 원상복귀
@@ -100,6 +107,14 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     {
         image = GetComponent<Image>();
         rect = GetComponent<RectTransform>();
+        lineGruop = GetComponentsInChildren<RectTransform>();
+
+        for(int i=1; i<lineGruop.Length; i++)
+        {
+            lineGruop[i].SetAsLastSibling();
+            lineGruop[i].gameObject.SetActive(false);
+        }
+        
     }
 
     /// <summary>
@@ -108,8 +123,8 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     /// <param name="eventData"></param>
     public void OnPointerDown(PointerEventData eventData)
     {
-        //선택이 안됬을때만
-        if (!Selected)
+        //선택이 안되고 살아있을때만
+        if (!Selected && isLive)
         {
             //선택 true로만들고
             //게임매니저에게 현재 어떤블록을 선택했는지 할당해주고
@@ -132,8 +147,8 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
         //게임매니저에 현재 블록이 선택되있으면
         if (GameManager.Instance.ThisBlock != null)
         {
-            //자신이 선택상태가 아니라면
-            if (!Selected)
+            //자신이 선택상태가 아니고 살아있으면
+            if (!Selected && isLive)
             {
                 //게임매니저에 선택된 블록을 모아두는 queue가 0보다 클때
                 if (GameManager.Instance.Blocks.Count > 0)
@@ -146,6 +161,9 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
                         {
                             //선택되었다고 표시
                             Selected = true;
+
+                            GameManager.Instance.ThisBlock.LineEnable(lineDir);
+
                             //현재 블록을 자신으로
                             GameManager.Instance.ThisBlock = this;
                             //queue에 할당
@@ -178,6 +196,10 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
         Color tempColor = image.color;
         tempColor.a = 0.0f;
         image.color = tempColor;
+        for (int i = 1; i < lineGruop.Length; i++)
+        {
+            lineGruop[i].gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -205,6 +227,10 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     public void SelectedFalse()
     {
         Selected = false;
+        for (int i = 1; i < lineGruop.Length; i++)
+        {
+            lineGruop[i].gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -226,6 +252,7 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
                 if (indexX == thisX && indexY == thisY)
                 {
                     result = true;
+                    lineDir = i;
                     break;
                 }
 
@@ -240,6 +267,7 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
                 if (indexX == thisX && indexY == thisY)
                 {
                     result = true;
+                    lineDir = i;
                     break;
                 }
 
@@ -280,7 +308,10 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
         
     }
 
-
+    public void LineEnable(int i)
+    {
+        lineGruop[i + 1].gameObject.SetActive(true);
+    }
 
 
 }
