@@ -217,7 +217,7 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
         Color tempColor = image.color;
         tempColor.a = 1.0f;
         image.color = tempColor;
-        int r = Random.Range(1, 4);
+        int r = Random.Range(1, 5);
         BlockType = (BlockType)r;
     }
 

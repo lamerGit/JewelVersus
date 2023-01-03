@@ -48,7 +48,7 @@ public class CreateGeometry : MonoBehaviour
 
                 tempblock.indexX = i; //x값 할당
                 tempblock.indexY = j; // y값 할당
-                int r = Random.Range(1, 4); // 블록타입 랜덤으로 뽑고
+                int r = Random.Range(1, 5); // 블록타입 랜덤으로 뽑고
                 tempblock.BlockType = (BlockType)r;
                 GameManager.Instance.AllBlocks[i,j] = tempblock; // 게임매니저에 준다.
                 tempblock.isLive = true;

@@ -9,7 +9,8 @@ public enum BlockType
     Red,
     Green,
     Blue,
-    Black,
-    White,
     Pupple,
+    Black,
+    White
+    
 }
