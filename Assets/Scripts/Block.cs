@@ -124,14 +124,14 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     public void OnPointerDown(PointerEventData eventData)
     {
         //선택이 안되고 살아있을때만
-        if (!Selected && isLive)
+        if (!Selected && isLive && GameManager.Instance.BlockManager.GameStart)
         {
             //선택 true로만들고
             //게임매니저에게 현재 어떤블록을 선택했는지 할당해주고
             //선택된 블록을 모아두는 queue에 넣는다.
             Selected = true;
-            GameManager.Instance.ThisBlock = this;
-            GameManager.Instance.Blocks.Enqueue(this);
+            GameManager.Instance.BlockManager.ThisBlock = this;
+            GameManager.Instance.BlockManager.Blocks.Enqueue(this);
         }
 
 
@@ -145,29 +145,29 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     public void OnPointerEnter(PointerEventData eventData)
     {
         //게임매니저에 현재 블록이 선택되있으면
-        if (GameManager.Instance.ThisBlock != null)
+        if (GameManager.Instance.BlockManager.ThisBlock != null)
         {
             //자신이 선택상태가 아니고 살아있으면
             if (!Selected && isLive)
             {
                 //게임매니저에 선택된 블록을 모아두는 queue가 0보다 클때
-                if (GameManager.Instance.Blocks.Count > 0)
+                if (GameManager.Instance.BlockManager.Blocks.Count > 0)
                 {
                     //현재 블록이 연결된 블록인지 확인하는 함수가 참일때
                     if (CheckNextBlock())
                     {
                         //현재 블록과 타입이 같다면
-                        if (GameManager.Instance.ThisBlock.blockType == BlockType)
+                        if (GameManager.Instance.BlockManager.ThisBlock.blockType == BlockType)
                         {
                             //선택되었다고 표시
                             Selected = true;
 
-                            GameManager.Instance.ThisBlock.LineEnable(lineDir);
+                            GameManager.Instance.BlockManager.ThisBlock.LineEnable(lineDir);
 
                             //현재 블록을 자신으로
-                            GameManager.Instance.ThisBlock = this;
+                            GameManager.Instance.BlockManager.ThisBlock = this;
                             //queue에 할당
-                            GameManager.Instance.Blocks.Enqueue(this);
+                            GameManager.Instance.BlockManager.Blocks.Enqueue(this);
                         }
                     }
                 }
@@ -241,13 +241,13 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
     {
         bool result = false;
 
-        if (GameManager.Instance.ThisBlock.indexX % 2 == 0)
+        if (GameManager.Instance.BlockManager.ThisBlock.indexX % 2 == 0)
         {
 
             for (int i = 0; i < 6; i++)
             {
-                int thisX = GameManager.Instance.ThisBlock.indexX + dirEvenX[i];
-                int thisY = GameManager.Instance.ThisBlock.indexY + dirEvenY[i];
+                int thisX = GameManager.Instance.BlockManager.ThisBlock.indexX + dirEvenX[i];
+                int thisY = GameManager.Instance.BlockManager.ThisBlock.indexY + dirEvenY[i];
 
                 if (indexX == thisX && indexY == thisY)
                 {
@@ -261,8 +261,8 @@ public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, I
         {
             for (int i = 0; i < 6; i++)
             {
-                int thisX = GameManager.Instance.ThisBlock.indexX + dirOddX[i];
-                int thisY = GameManager.Instance.ThisBlock.indexY + dirOddY[i];
+                int thisX = GameManager.Instance.BlockManager.ThisBlock.indexX + dirOddX[i];
+                int thisY = GameManager.Instance.BlockManager.ThisBlock.indexY + dirOddY[i];
 
                 if (indexX == thisX && indexY == thisY)
                 {

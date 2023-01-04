@@ -28,7 +28,7 @@ public class CreateGeometry : MonoBehaviour
         {
             for (int j = 0; j < boardy / 2; j++)
             {
-                GameManager.Instance.AllBlocks[i, j].BlockDisable();
+                GameManager.Instance.BlockManager.AllBlocks[i, j].BlockDisable();
             }
         }
     }
@@ -50,7 +50,7 @@ public class CreateGeometry : MonoBehaviour
                 tempblock.indexY = j; // y값 할당
                 int r = Random.Range(1, 5); // 블록타입 랜덤으로 뽑고
                 tempblock.BlockType = (BlockType)r;
-                GameManager.Instance.AllBlocks[i,j] = tempblock; // 게임매니저에 준다.
+                GameManager.Instance.BlockManager.AllBlocks[i,j] = tempblock; // 게임매니저에 준다.
                 tempblock.isLive = true;
 
                 

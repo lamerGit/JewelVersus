@@ -133,8 +133,8 @@ public class EnemyBlock : MonoBehaviour
             //게임매니저에게 현재 어떤블록을 선택했는지 할당해주고
             //선택된 블록을 모아두는 queue에 넣는다.
             Selected = true;
-            GameManager.Instance.ThisEnmeyBlock = this;
-            GameManager.Instance.EnemyBlocks.Enqueue(this);
+            GameManager.Instance.BlockManager.ThisEnmeyBlock = this;
+            GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(this);
         }
     }
 
@@ -152,12 +152,12 @@ public class EnemyBlock : MonoBehaviour
 
                 if ( nextX>=0 && nextX<GameManager.BOARDX && nextY>=GameManager.BOARDY/2 && nextY<GameManager.BOARDY)
                 {
-                    if (GameManager.Instance.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.EnemyAllBlocks[nextX, nextY].Selected)
+                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected)
                     {
-                        GameManager.Instance.EnemyAllBlocks[nextX,nextY].Selected= true;
+                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX,nextY].Selected= true;
                         LineEnable(i);
-                        GameManager.Instance.ThisEnmeyBlock = GameManager.Instance.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.EnemyBlocks.Enqueue(GameManager.Instance.EnemyAllBlocks[nextX, nextY]);
+                        GameManager.Instance.BlockManager.ThisEnmeyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
 
                         result= true;
 
@@ -176,12 +176,12 @@ public class EnemyBlock : MonoBehaviour
 
                 if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
                 {
-                    if (GameManager.Instance.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.EnemyAllBlocks[nextX, nextY].Selected)
+                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected)
                     {
-                        GameManager.Instance.EnemyAllBlocks[nextX, nextY].Selected = true;
+                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected = true;
                         LineEnable(i);
-                        GameManager.Instance.ThisEnmeyBlock = GameManager.Instance.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.EnemyBlocks.Enqueue(GameManager.Instance.EnemyAllBlocks[nextX, nextY]);
+                        GameManager.Instance.BlockManager.ThisEnmeyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
 
                         result = true;
 

@@ -30,7 +30,7 @@ public class ReadyGo : MonoBehaviour
             if(count==0)
             {
                 textGui.text = "GO!";
-                GameManager.Instance.GameStart = true;
+                GameManager.Instance.BlockManager.GameStart = true;
             }
 
 
