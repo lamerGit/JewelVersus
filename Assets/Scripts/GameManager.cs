@@ -13,6 +13,8 @@ public class GameManager : Singleton<GameManager>
     public static int BOARDX = 7; //블록 x값
     public static int BOARDY = 12; //블록 y값
 
+    public static int MAXBLOCK = 5; // 최대 생성되는 블록갯수
+
     BlockManager blockManager = null;
 
     public BlockManager BlockManager

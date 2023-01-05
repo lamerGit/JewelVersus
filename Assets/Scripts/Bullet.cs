@@ -38,6 +38,7 @@ public class Bullet : MonoBehaviour
 
         Vector2 targetVector = target.anchoredPosition;
         targetVector.y -= 50.0f;
+        targetVector.x -= 50.0f;
 
         
         duration = Vector2.Distance(rect.anchoredPosition, targetVector) / speed;

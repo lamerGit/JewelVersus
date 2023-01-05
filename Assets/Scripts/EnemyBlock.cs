@@ -29,6 +29,19 @@ public class EnemyBlock : MonoBehaviour
 
     public RectTransform[] lineGruop;
 
+
+
+    bool checkBlock=false; //3개이상 이어지는 블록이 있는지 확인할때 사용되는 변수
+
+    /// <summary>
+    /// 3개이상 이어지는 블록이 있는지 확인할때 사용되는 변수의 프로퍼티
+    /// </summary>
+    public bool CheckBlock
+    {
+        get { return checkBlock; }
+        set { checkBlock = value; }
+    }
+
     /// <summary>
     /// RectTransform 외부 참조용 프로퍼티
     /// </summary>
@@ -229,7 +242,7 @@ public class EnemyBlock : MonoBehaviour
         Color tempColor = image.color;
         tempColor.a = 1.0f;
         image.color = tempColor;
-        int r = Random.Range(1, 5);
+        int r = Random.Range(1, GameManager.MAXBLOCK);
         BlockType = (BlockType)r;
     }
 
@@ -282,4 +295,73 @@ public class EnemyBlock : MonoBehaviour
         lineGruop[i + 1].gameObject.SetActive(true);
     }
 
+
+    /// <summary>
+    /// 주변에 같은 종류의 블럭이 있는지 확인하는 함수
+    /// </summary>
+    /// <returns>있으면 true 없으면 false</returns>
+    public bool BoardCheckEnemyBlock()
+    {
+        bool result = false;
+
+        if (indexX % 2 == 0)
+        {
+
+            for (int i = 0; i < 6; i++)
+            {
+                int nextX = indexX + dirEvenX[i];
+                int nextY = indexY + dirEvenY[i];
+
+                if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
+                {
+                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock)
+                    {
+
+                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX,nextY].CheckBlock = true;
+                        GameManager.Instance.BlockManager.ThisCheckEnemyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.EnemyCheckBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
+
+
+                        result = true;
+
+                        break;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                int nextX = indexX + dirOddX[i];
+                int nextY = indexY + dirOddY[i];
+
+                if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
+                {
+                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock)
+                    {
+                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock = true;
+                        GameManager.Instance.BlockManager.ThisCheckEnemyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.EnemyCheckBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
+
+
+
+                        result = true;
+
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        return result;
+    }
+
+    public void CheckedFalse()
+    {
+        CheckBlock = false;
+        
+    }
 }

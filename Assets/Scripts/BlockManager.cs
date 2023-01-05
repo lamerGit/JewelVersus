@@ -17,6 +17,7 @@ public class BlockManager : MonoBehaviour
     Block thisBlock = null; //현재 선택중인 변수
     Block[,] allBlocks = new Block[GameManager.BOARDX,GameManager.BOARDY]; //모든블록을 담아두는 변수
     int[] indexCheck = new int[7] { 0, 0, 0, 0, 0, 0, 0 }; //몇번째 indexX에 선택한 블록 갯수를 기록할 변수
+
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
     //적 변수ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
@@ -42,7 +43,39 @@ public class BlockManager : MonoBehaviour
 
     RectTransform enemyImageRect;
 
+    //체크용 변수ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    Queue<EnemyBlock> enemyCheckBlocks=new Queue<EnemyBlock>();
+    EnemyBlock thisCheckEnemyBlock= null;
 
+    public Queue<EnemyBlock> EnemyCheckBlocks
+    {
+        get { return enemyCheckBlocks; }
+    }
+
+    public EnemyBlock ThisCheckEnemyBlock
+    {
+        get { return thisCheckEnemyBlock; }
+        set { thisCheckEnemyBlock = value; }
+    }
+
+
+    Queue<Block> checkBlocks=new Queue<Block>();
+    Block thisCheckBlock= null;
+
+    public Queue<Block> CheckBlocks
+    {
+        get { return checkBlocks; }
+    }
+
+    public Block ThisCheckBlock
+    {
+        get { return thisCheckBlock; }
+        set { thisCheckBlock = value; }
+    }
+
+
+
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     public Queue<Bullet> Bullets
     {
         get { return bullets; }
@@ -58,11 +91,11 @@ public class BlockManager : MonoBehaviour
         get { return gameGauge; }
         set
         {
-            gameGauge = value;
+            gameGauge = Mathf.Clamp( value,-0.1f,1.1f);
             OnChangeGauge?.Invoke(gameGauge);
             if (gameGauge < 0.0f && GameStart)
             {
-                GameStart = false;
+                GameStart = false;  
             }
             else if (gameGauge > 1.0f && GameStart)
             {
@@ -83,6 +116,21 @@ public class BlockManager : MonoBehaviour
             if (gameStart)
             {
                 StartCoroutine(AutoEnemy());
+                if (!GameBoardCheck())
+                {
+
+                    BoardReset();
+
+                }
+
+                if (!GameEnemyBoardCheck())
+                {
+                    EnemyBoardReset();
+
+                }
+
+
+
                 OnStartGame?.Invoke();
             }
             else
@@ -174,9 +222,10 @@ public class BlockManager : MonoBehaviour
         GameManager.Instance.BlockManager = this;
         inputActions = new();
 
+        
         canvas = GameObject.Find("Canvas");
 
-        for(int i=0; i<30; i++)
+        for(int i=0; i<60; i++)
         {
             GameObject temp = Instantiate(bullet,canvas.transform);
             bullets.Enqueue(temp.GetComponent<Bullet>());
@@ -252,7 +301,7 @@ public class BlockManager : MonoBehaviour
 
                 }
 
-
+                
                 //라인 확인하면서 Check함수를 통해 교체함
                 for (int i = 0; i < 7; i++)
                 {
@@ -262,6 +311,14 @@ public class BlockManager : MonoBehaviour
                     }
                     indexCheck[i] = 0;
                 }
+
+                if (!GameBoardCheck())
+                {
+
+                    BoardReset();
+                    //Debug.Log("3개이상 이어지는 블록없음");
+                }
+
 
             }
             else
@@ -421,8 +478,11 @@ public class BlockManager : MonoBehaviour
 
         duration = Vector2.Distance(prevPos, pos) / speed;
 
+        
         DOTween.To(() => block.Rect.anchoredPosition, x => block.Rect.anchoredPosition = x, pos, duration * Time.fixedDeltaTime);
+
     }
+
 
     void MoveEnemyBlock(EnemyBlock block, Vector2 pos)
     {
@@ -433,7 +493,11 @@ public class BlockManager : MonoBehaviour
 
         duration = Vector2.Distance(prevPos, pos) / speed;
 
+        
+        
         DOTween.To(() => block.Rect.anchoredPosition, x => block.Rect.anchoredPosition = x, pos, duration * Time.fixedDeltaTime);
+        
+        
     }
 
     IEnumerator AutoEnemy()
@@ -488,6 +552,12 @@ public class BlockManager : MonoBehaviour
                         }
 
                         thisEnmeyBlock = null;
+
+                        if (!GameEnemyBoardCheck())
+                        {
+                            EnemyBoardReset();
+                            //Debug.Log("3개이상 이어지는 블록없음");
+                        }
                     }
                     else
                     {
@@ -504,11 +574,193 @@ public class BlockManager : MonoBehaviour
             }
 
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.1f); 
         }
     }
 
-    
+
+    /// <summary>
+    /// 3개 이상 열결될 블록이 있는지 확인하는 변수
+    /// </summary>
+    bool GameEnemyBoardCheck()
+    {
+        bool result=false;
+
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = GameManager.BOARDY / 2-1; j <GameManager.BOARDY ; j++)
+            {
+                thisCheckEnemyBlock = EnemyAllBlocks[i, j];
+                while(thisCheckEnemyBlock!=null)
+                {
+                    if (!thisCheckEnemyBlock.BoardCheckEnemyBlock())
+                    {
+                        if (enemyCheckBlocks.Count > 2)
+                        {
+
+                            while (enemyCheckBlocks.Count > 0)
+                            {
+                                EnemyBlock tempBlock = enemyCheckBlocks.Dequeue();
+
+                                tempBlock.CheckedFalse();
+                            }
+                            result= true;
+
+                            thisCheckEnemyBlock = null;
+                        }
+                        else
+                        {
+                            //선택했던 블록이 3개이상이 아니라면 블록선택상태 해제
+                            while (enemyCheckBlocks.Count > 0)
+                            {
+                                EnemyBlock tempBlock = enemyCheckBlocks.Dequeue();
+
+                                tempBlock.CheckedFalse();
+                            }
+                            thisCheckEnemyBlock = null;
+                        }
+                    }
+                }
+                if(result)
+                {
+                    break;
+                }
+
+            }
+            if(result)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    void EnemyBoardReset()
+    {
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0 ; j < GameManager.BOARDY; j++)
+            {
+                EnemyAllBlocks[i, j].BlockDisable();
+            }
+        }
+
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0; j < GameManager.BOARDY; j++)
+            {
+                EnemyAllBlocks[i, j].BlockEnable(i,j);
+            }
+        }
+
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0; j < GameManager.BOARDY / 2; j++)
+            {
+                EnemyAllBlocks[i, j].BlockDisable();
+
+            }
+        }
+        if (!GameEnemyBoardCheck())
+        {
+            EnemyBoardReset();
+            //Debug.Log("3개이상 이어지는 블록없음");
+        }
+
+    }
+
+
+    bool GameBoardCheck()
+    {
+        bool result = false;
+
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = GameManager.BOARDY / 2 - 1; j < GameManager.BOARDY; j++)
+            {
+                thisCheckBlock = AllBlocks[i, j];
+                while (thisCheckBlock != null)
+                {
+                    if (!thisCheckBlock.BoardCheckBlock())
+                    {
+                        if (CheckBlocks.Count > 2)
+                        {
+
+                            while (CheckBlocks.Count > 0)
+                            {
+                                Block tempBlock = CheckBlocks.Dequeue();
+
+                                tempBlock.CheckedFalse();
+                            }
+                            result = true;
+
+                            thisCheckBlock = null;
+                        }
+                        else
+                        {
+                            //선택했던 블록이 3개이상이 아니라면 블록선택상태 해제
+                            while (CheckBlocks.Count > 0)
+                            {
+                                Block tempBlock = CheckBlocks.Dequeue();
+
+                                tempBlock.CheckedFalse();
+                            }
+                            thisCheckBlock = null;
+                        }
+                    }
+                }
+                if (result)
+                {
+                    break;
+                }
+
+            }
+            if (result)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    void BoardReset()
+    {
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0; j < GameManager.BOARDY; j++)
+            {
+                AllBlocks[i, j].BlockDisable();
+            }
+        }
+
+       
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0; j < GameManager.BOARDY; j++)
+            {
+                AllBlocks[i, j].BlockEnable(i,j);
+            }
+        }
+
+        for (int i = 0; i < GameManager.BOARDX; i++)
+        {
+            for (int j = 0; j < GameManager.BOARDY / 2; j++)
+            {
+                AllBlocks[i, j].BlockDisable();
+            }
+        }
+
+        if (!GameBoardCheck())
+        {
+
+            BoardReset();
+            //Debug.Log("3개이상 이어지는 블록없음");
+        }
+
+
+    }
 
     void GameSet()
     {

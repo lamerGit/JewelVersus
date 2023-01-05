@@ -34,7 +34,7 @@ public class GameTimer : MonoBehaviour
 
             if(slider.value <= 0 )
             {
-                GameManager.Instance.BlockManager.GameStart= false;
+                GameManager.Instance.BlockManager.GameStart= false; 
             }
 
             yield return t;
