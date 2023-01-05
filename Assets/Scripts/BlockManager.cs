@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -31,18 +32,39 @@ public class BlockManager : MonoBehaviour
 
     float gameGauge = 0.5f;
 
-    float GameGauge
+    RectTransform vsGaugeRect;
+
+    public GameObject bullet;
+
+    GameObject canvas;
+
+    Queue<Bullet> bullets = new Queue<Bullet>();
+
+    RectTransform enemyImageRect;
+
+
+    public Queue<Bullet> Bullets
+    {
+        get { return bullets; }
+    }
+
+    public RectTransform VsGaugeRect
+    {
+        get { return vsGaugeRect; }
+    }
+
+    public float GameGauge
     {
         get { return gameGauge; }
         set
         {
             gameGauge = value;
             OnChangeGauge?.Invoke(gameGauge);
-            if (gameGauge < 0.0f)
+            if (gameGauge < 0.0f && GameStart)
             {
                 GameStart = false;
             }
-            else if (gameGauge > 1.0f)
+            else if (gameGauge > 1.0f && GameStart)
             {
                 GameStart = false;
             }
@@ -66,6 +88,7 @@ public class BlockManager : MonoBehaviour
             else
             {
                 StopCoroutine(AutoEnemy());
+                GameSet();
                 if(gameGauge<0.5f)
                 {
                     Debug.Log("적 승리");
@@ -150,11 +173,24 @@ public class BlockManager : MonoBehaviour
     {
         GameManager.Instance.BlockManager = this;
         inputActions = new();
+
+        canvas = GameObject.Find("Canvas");
+
+        for(int i=0; i<30; i++)
+        {
+            GameObject temp = Instantiate(bullet,canvas.transform);
+            bullets.Enqueue(temp.GetComponent<Bullet>());
+            temp.SetActive(false);
+        }
+
     }
 
     private void Start()
     {
         //StartCoroutine(AutoEnemy());
+        vsGaugeRect = FindObjectOfType<VsGauge>().GetComponent<RectTransform>();
+        enemyImageRect=FindObjectOfType<EnemyImage>().GetComponent<RectTransform>();
+
         gameGauge = 0.5f;
     }
 
@@ -193,17 +229,29 @@ public class BlockManager : MonoBehaviour
             //선택했던 블록이 3개이상이라면
             if (blocks.Count > 2)
             {
-                GaugeChange(blocks.Count, true);
+                //GaugeChange(blocks.Count, true);
 
+                Block tempBlock = null;
+                int tempCount=blocks.Count;
                 //선택했던 블록 전부 제거
                 while (blocks.Count > 0)
                 {
-                    Block tempBlock = blocks.Dequeue();
+                    tempBlock = blocks.Dequeue();
                     tempBlock.BlockDisable();
 
                     //선택했던 블록의 라인++
                     indexCheck[tempBlock.indexX]++;
                 }
+                if(tempBlock!= null)
+                {
+                    if(bullets.Count>0)
+                    {
+                        Bullet tempBullet = bullets.Dequeue();
+                        tempBullet.MoveBullet(tempBlock.Rect.anchoredPosition,true,tempCount);
+                    }
+
+                }
+
 
                 //라인 확인하면서 Check함수를 통해 교체함
                 for (int i = 0; i < 7; i++)
@@ -406,14 +454,29 @@ public class BlockManager : MonoBehaviour
                 {
                     if (enemyBlocks.Count > 2)
                     {
-                        GaugeChange(enemyBlocks.Count, false);
+                        //GaugeChange(enemyBlocks.Count, false);
+
+
+                        EnemyBlock tempBlock = null;
+                        int tempCount=enemyBlocks.Count;
 
                         while (enemyBlocks.Count > 0)
                         {
-                            EnemyBlock tempBlock = enemyBlocks.Dequeue();
+                            tempBlock = enemyBlocks.Dequeue();
                             tempBlock.BlockDisable();
                             enemyIndexCheck[tempBlock.indexX]++;
                         }
+
+                        if(tempBlock != null)
+                        {
+                            if(bullets.Count>0)
+                            {
+                                Bullet tempBullet = bullets.Dequeue();
+                                tempBullet.MoveBullet(enemyImageRect.anchoredPosition, false,tempCount);
+                            }
+                        }
+
+
 
                         for (int i = 0; i < 7; i++)
                         {
@@ -441,41 +504,28 @@ public class BlockManager : MonoBehaviour
             }
 
 
-            yield return new WaitForSeconds(1.1f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
-    void GaugeChange(int count, bool player)
+    
+
+    void GameSet()
     {
-        float attackType = 1.0f;
-
-        if (!player)
+        while (blocks.Count > 0)
         {
-            attackType *= -1.0f;
+            Block tempBlock = blocks.Dequeue();
+
+            tempBlock.SelectedFalse();
         }
+        thisBlock = null;
 
-
-        for (int i = 1; i <= count; i++)
+        while (enemyBlocks.Count > 0)
         {
-            if (i < 4)
-            {
-                GameGauge += 0.01f * attackType;
-            }
-            else if (i < 7)
-            {
-                GameGauge += 0.02f * attackType;
-            }
-            else if (i < 10)
-            {
-                GameGauge += 0.03f * attackType;
-            }
-            else
-            {
-                GameGauge += 0.04f * attackType;
-            }
-            //Debug.Log(GameGauge);
+            EnemyBlock tempBlock = enemyBlocks.Dequeue();
+
+            tempBlock.SelectedFalse();
         }
-
-
+        thisEnmeyBlock = null;
     }
 }
