@@ -26,6 +26,8 @@ public class BlockManager : MonoBehaviour
     EnemyBlock[,] enemyAllBlocks = new EnemyBlock[GameManager.BOARDX, GameManager.BOARDY];
     int[] enemyIndexCheck = new int[7] { 0, 0, 0, 0, 0, 0, 0 };
 
+    WaitForSeconds aiSpeed;
+
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
     bool gameStart = false;
@@ -43,7 +45,10 @@ public class BlockManager : MonoBehaviour
 
     RectTransform enemyImageRect;
 
+    GameSetUI gameSetUI;
+
     //체크용 변수ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    //플레이어와 AI가 3개이상 블록을 이을수 없는 것을 확인할 변수
     Queue<EnemyBlock> enemyCheckBlocks=new Queue<EnemyBlock>();
     EnemyBlock thisCheckEnemyBlock= null;
 
@@ -139,13 +144,19 @@ public class BlockManager : MonoBehaviour
                 GameSet();
                 if(gameGauge<0.5f)
                 {
-                    Debug.Log("적 승리");
+                    //Debug.Log("적 승리");
+                    gameSetUI.Open(WinnerEnum.AI);
+
+
                 }else if(gameGauge>0.5f)
                 {
-                    Debug.Log("플레이어 승리");
-                }else
+                    //Debug.Log("플레이어 승리");
+                    gameSetUI.Open(WinnerEnum.Player);
+                }
+                else
                 {
-                    Debug.Log("무승부?");
+                    gameSetUI.Open(WinnerEnum.None);
+                    //Debug.Log("무승부?");
                 }
             }
 
@@ -240,7 +251,12 @@ public class BlockManager : MonoBehaviour
         vsGaugeRect = FindObjectOfType<VsGauge>().GetComponent<RectTransform>();
         enemyImageRect=FindObjectOfType<EnemyImage>().GetComponent<RectTransform>();
 
+        gameSetUI = FindObjectOfType<GameSetUI>();
+        gameSetUI.Close();
+
+
         gameGauge = 0.5f;
+        aiSpeed = new WaitForSeconds(GameManager.levelSpeed[GameManager.Instance.AILevel]);
     }
 
     private  void OnEnable()
@@ -574,7 +590,7 @@ public class BlockManager : MonoBehaviour
             }
 
 
-            yield return new WaitForSeconds(0.1f); 
+            yield return aiSpeed; 
         }
     }
 

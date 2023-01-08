@@ -17,7 +17,10 @@ public class VsGauge : MonoBehaviour
     {
         GameManager.Instance.BlockManager.OnChangeGauge += (value) =>
         {
-            slider.value = value;
+            if (GameManager.Instance.BlockManager.GameStart)
+            {
+                slider.value = value;
+            }
         };
     }
 

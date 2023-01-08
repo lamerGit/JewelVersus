@@ -14,3 +14,18 @@ public enum BlockType
     White
     
 }
+
+public enum SceneEnum
+{
+    Main=0,
+    VsAI,
+    VsAILoading
+}
+
+public enum WinnerEnum
+{
+    None=0,
+    Player,
+    Player2,
+    AI
+}
