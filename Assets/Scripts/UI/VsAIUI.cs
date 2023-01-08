@@ -54,6 +54,27 @@ public class VsAIUI : MonoBehaviour
         aiStart.onClick.AddListener(OnAiStart);
         aiIncrease.onClick.AddListener(OnInscrease);
         aiDecrease.onClick.AddListener(OnDecrease);
+
+       
+    }
+
+    private void Start()
+    {
+
+        for(int i=0; i<GameManager.Instance.LevelClear.Length; i++)
+        {
+            if (!GameManager.Instance.LevelClear[i])
+            {
+                ThisStage = i + 1;
+                break;
+            }
+        }
+
+
+        if (!GameManager.Instance.LevelClear[ThisStage - 1])
+        {
+            aiIncrease.interactable = false;
+        }
     }
 
 

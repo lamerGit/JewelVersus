@@ -151,6 +151,8 @@ public class BlockManager : MonoBehaviour
                 }else if(gameGauge>0.5f)
                 {
                     //Debug.Log("플레이어 승리");
+                    GameManager.Instance.LevelClear[GameManager.Instance.AILevel] = true;
+                    AchievementCheck(GameManager.Instance.AILevel+1);
                     gameSetUI.Open(WinnerEnum.Player);
                 }
                 else
@@ -795,5 +797,30 @@ public class BlockManager : MonoBehaviour
             tempBlock.SelectedFalse();
         }
         thisEnmeyBlock = null;
+    }
+
+    void AchievementCheck(int aiLevel)
+    {
+        switch(aiLevel)
+        {
+            case 1:
+                AchievementManager.Instance.OnNotify(AchievementManager.Achievements.Level1, GameManager.Instance.LevelClear[GameManager.Instance.AILevel]);
+                break;
+            case 5:
+                AchievementManager.Instance.OnNotify(AchievementManager.Achievements.Level5, GameManager.Instance.LevelClear[GameManager.Instance.AILevel]);
+                break;
+            case 10:
+                AchievementManager.Instance.OnNotify(AchievementManager.Achievements.Level10, GameManager.Instance.LevelClear[GameManager.Instance.AILevel]);
+                break;
+            case 15:
+                AchievementManager.Instance.OnNotify(AchievementManager.Achievements.Level15, GameManager.Instance.LevelClear[GameManager.Instance.AILevel]);
+                break;
+            case 20:
+                AchievementManager.Instance.OnNotify(AchievementManager.Achievements.Level20, GameManager.Instance.LevelClear[GameManager.Instance.AILevel]);
+                break;
+
+
+
+        }
     }
 }

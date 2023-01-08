@@ -23,6 +23,14 @@ public class GameManager : Singleton<GameManager>
 
     int aiLevel=0;
 
+    bool[] achievementEvent = new bool[5] {false,false,false,false,false };
+
+    public bool[] AchievementEvent
+    {
+        get { return achievementEvent; }
+        set { achievementEvent = value; }
+    }
+
     public bool[] LevelClear
     {
         get { return levelClear; }
@@ -48,9 +56,9 @@ public class GameManager : Singleton<GameManager>
 
         for(int i=0; i<levelClear.Length; i++)
         {
-            levelClear[i] = true;
+            levelClear[i] = false;
         }
-        levelClear[0]= true;
+        //levelClear[0]= true;
     }
 
 

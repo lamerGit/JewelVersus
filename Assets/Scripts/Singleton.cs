@@ -19,7 +19,7 @@ public class Singleton<T> : MonoBehaviour where T : Component
             if(instance == null)
             {
                 // 아직 싱글톤용 인스턴스가 만들어지지 않았다. 한번도 사용된 적이 없다.
-                T obj=FindObjectOfType<T>(); // 일다 같은 타입이 있는지 찾기
+                T obj=FindObjectOfType<T>(); // 일단 같은 타입이 있는지 찾기
                 if(obj == null)
                 {
                     GameObject gameObject = new(); // 없으면 새로 만든다.
