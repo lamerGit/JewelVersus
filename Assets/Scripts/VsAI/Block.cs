@@ -1,17 +1,19 @@
-﻿using System.Collections;
+﻿using Google.Protobuf.Protocol;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EnemyBlock : MonoBehaviour
+
+public class Block : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler, IPointerExitHandler
 {
-    //적블럭의 스크립트
+    //블럭의 스크립트
 
     public int indexX = -1; //블럭의 포지션X
     public int indexY = -1; //블럭의 포지션Y
 
-    BlockType blockType = BlockType.None; //블럭의 타입
+    BlockType blockType = BlockType.Notthing; //블럭의 타입
     Image image; //블럭의 이미지
 
     bool selected = false; //블럭이 선택됬는지 확인용 변수
@@ -19,7 +21,7 @@ public class EnemyBlock : MonoBehaviour
 
     //블럭이 짝수일때랑 홀수일때 선택이 달라지기 때문에 
     //짝수와 홀수 검사용 변수를 따로 만든다. 위,아래,대각선왼쪽 오른쪽
-
+    
     int[] dirEvenX = new int[6] { 1, 0, -1, 1, 0, -1 };
     int[] dirEvenY = new int[6] { 0, -1, 0, 1, 1, 1 };
     int[] dirOddX = new int[6] { 1, 0, -1, 1, 0, -1 };
@@ -29,9 +31,10 @@ public class EnemyBlock : MonoBehaviour
 
     public RectTransform[] lineGruop;
 
+    int lineDir = -1;
 
+    bool checkBlock = false; //3개이상 이어지는 블록이 있는지 확인할때 사용되는 변수
 
-    bool checkBlock=false; //3개이상 이어지는 블록이 있는지 확인할때 사용되는 변수
 
     /// <summary>
     /// 3개이상 이어지는 블록이 있는지 확인할때 사용되는 변수의 프로퍼티
@@ -56,29 +59,26 @@ public class EnemyBlock : MonoBehaviour
     bool Selected
     {
         get { return selected; }
-        set
-        {
-            selected = value;
-
+        set { selected = value;
+        
             //선택되면 이미지를 흐리게 만든다.
-            if (selected)
+            if(selected)
             {
                 Color tempColor = image.color;
                 tempColor.a = 0.5f;
                 image.color = tempColor;
 
 
-            }
-            else
+            }else
             {
                 //선택해제시 이미지 원상복귀
                 Color tempColor = image.color;
                 tempColor.a = 1.0f;
                 image.color = tempColor;
             }
-
+        
         }
-
+        
     }
 
     /// <summary>
@@ -92,27 +92,22 @@ public class EnemyBlock : MonoBehaviour
             blockType = value;
 
             //블록타입에 따라 블록색이 변한다.
-            if (blockType == BlockType.Red)
+            if(blockType == BlockType.Red)
             {
-                image.color = Color.red;
-            }
-            else if (blockType == BlockType.Green)
+                image.color= Color.red;
+            }else if(blockType==BlockType.Green)
             {
                 image.color = Color.green;
-            }
-            else if (blockType == BlockType.Blue)
+            }else if(blockType==BlockType.Blue)
             {
                 image.color = Color.blue;
-            }
-            else if (blockType == BlockType.Black)
+            }else if(blockType==BlockType.Black)
             {
-                image.color = Color.black;
-            }
-            else if (blockType == BlockType.White)
+                image.color=Color.black;
+            }else if(blockType ==BlockType.White)
             {
                 image.color = Color.white;
-            }
-            else if (blockType == BlockType.Pupple)
+            }else if(blockType==BlockType.Pupple)
             {
                 image.color = new Color(1, 0, 1, 1);
             }
@@ -127,88 +122,81 @@ public class EnemyBlock : MonoBehaviour
         rect = GetComponent<RectTransform>();
         lineGruop = GetComponentsInChildren<RectTransform>();
 
-        for (int i = 1; i < lineGruop.Length; i++)
+        for(int i=1; i<lineGruop.Length; i++)
         {
             lineGruop[i].SetAsLastSibling();
             lineGruop[i].gameObject.SetActive(false);
         }
-
+        
     }
 
-    
-
-    public void FirstEnemyBlockSelect()
+    /// <summary>
+    /// 블록을 클릭시 실행되는 함수
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerDown(PointerEventData eventData)
     {
         //선택이 안되고 살아있을때만
-        if (!Selected && isLive)
+        if (!Selected && isLive && GameManager.Instance.BlockManager.GameStart)
         {
             //선택 true로만들고
             //게임매니저에게 현재 어떤블록을 선택했는지 할당해주고
             //선택된 블록을 모아두는 queue에 넣는다.
             Selected = true;
-            GameManager.Instance.BlockManager.ThisEnmeyBlock = this;
-            GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(this);
+            GameManager.Instance.BlockManager.ThisBlock = this;
+            GameManager.Instance.BlockManager.Blocks.Enqueue(this);
         }
+
+
     }
 
-    public bool CheckEnemyNextBlock()
+
+    /// <summary>
+    /// 블록위에 마우스가 올라왔을때 실행되는 함수
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        bool result= false;
-
-        if (indexX % 2 == 0)
+        //게임매니저에 현재 블록이 선택되있으면
+        if (GameManager.Instance.BlockManager.ThisBlock != null)
         {
-
-            for (int i = 0; i < 6; i++)
+            //자신이 선택상태가 아니고 살아있으면
+            if (!Selected && isLive)
             {
-                int nextX = indexX + dirEvenX[i];
-                int nextY = indexY + dirEvenY[i];
-
-                if ( nextX>=0 && nextX<GameManager.BOARDX && nextY>=GameManager.BOARDY/2 && nextY<GameManager.BOARDY)
+                //게임매니저에 선택된 블록을 모아두는 queue가 0보다 클때
+                if (GameManager.Instance.BlockManager.Blocks.Count > 0)
                 {
-                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected)
+                    //현재 블록이 연결된 블록인지 확인하는 함수가 참일때
+                    if (CheckNextBlock())
                     {
-                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX,nextY].Selected= true;
-                        LineEnable(i);
-                        GameManager.Instance.BlockManager.ThisEnmeyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
+                        //현재 블록과 타입이 같다면
+                        if (GameManager.Instance.BlockManager.ThisBlock.blockType == BlockType)
+                        {
+                            //선택되었다고 표시
+                            Selected = true;
 
-                        result= true;
+                            GameManager.Instance.BlockManager.ThisBlock.LineEnable(lineDir);
 
-                        break;
+                            //현재 블록을 자신으로
+                            GameManager.Instance.BlockManager.ThisBlock = this;
+                            //queue에 할당
+                            GameManager.Instance.BlockManager.Blocks.Enqueue(this);
+                        }
                     }
                 }
-
             }
         }
-        else
-        {
-            for (int i = 0; i < 6; i++)
-            {
-                int nextX = indexX + dirOddX[i];
-                int nextY = indexY + dirOddY[i];
-
-                if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
-                {
-                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected)
-                    {
-                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].Selected = true;
-                        LineEnable(i);
-                        GameManager.Instance.BlockManager.ThisEnmeyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.BlockManager.EnemyBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
-
-                        result = true;
-
-                        break;
-                    }
-                }
-
-            }
-        }
-
-        return result;
+        
     }
 
-    
+    /// <summary>
+    /// 제작중....
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        
+    }
 
     /// <summary>
     /// 블록을 제거하는 함수
@@ -232,7 +220,7 @@ public class EnemyBlock : MonoBehaviour
     /// </summary>
     /// <param name="x">활성할 블록의 x값</param>
     /// <param name="y">활성할 블록의 y값</param>
-    public void BlockEnable(int x, int y)
+    public void BlockEnable(int x,int y)
     {
         isLive = true;
         Selected = false;
@@ -258,7 +246,50 @@ public class EnemyBlock : MonoBehaviour
         }
     }
 
-    
+    /// <summary>
+    /// 자신이 현재블록주변에 있는지 확인하는 변수
+    /// </summary>
+    /// <returns>현재블록주변에 있으면 true 아니면 false</returns>
+    bool CheckNextBlock()
+    {
+        bool result = false;
+
+        if (GameManager.Instance.BlockManager.ThisBlock.indexX % 2 == 0)
+        {
+
+            for (int i = 0; i < 6; i++)
+            {
+                int thisX = GameManager.Instance.BlockManager.ThisBlock.indexX + dirEvenX[i];
+                int thisY = GameManager.Instance.BlockManager.ThisBlock.indexY + dirEvenY[i];
+
+                if (indexX == thisX && indexY == thisY)
+                {
+                    result = true;
+                    lineDir = i;
+                    break;
+                }
+
+            }
+        }else
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                int thisX = GameManager.Instance.BlockManager.ThisBlock.indexX + dirOddX[i];
+                int thisY = GameManager.Instance.BlockManager.ThisBlock.indexY + dirOddY[i];
+
+                if (indexX == thisX && indexY == thisY)
+                {
+                    result = true;
+                    lineDir = i;
+                    break;
+                }
+
+            }
+        }
+
+
+        return result;
+    }
 
     /// <summary>
     /// 블록정보 변경용 함수
@@ -267,14 +298,14 @@ public class EnemyBlock : MonoBehaviour
     /// <param name="x">변경할 x값</param>
     /// <param name="y">변경할 y값</param>
     /// <param name="anchorPostion">변경할 위치</param>
-    public void ValueChange(int x, int y, Vector2 anchorPostion)
+    public void ValueChange(int x,int y,Vector2 anchorPostion)
     {
         indexX = x;
         indexY = y;
         rect.anchoredPosition = anchorPostion;
-
-
-    }
+        
+       
+    } 
 
     /// <summary>
     /// 블록정보 변경용 함수
@@ -287,7 +318,7 @@ public class EnemyBlock : MonoBehaviour
     {
         indexX = x;
         indexY = y;
-
+        
     }
 
     public void LineEnable(int i)
@@ -300,7 +331,7 @@ public class EnemyBlock : MonoBehaviour
     /// 주변에 같은 종류의 블럭이 있는지 확인하는 함수
     /// </summary>
     /// <returns>있으면 true 없으면 false</returns>
-    public bool BoardCheckEnemyBlock()
+    public bool BoardCheckBlock()
     {
         bool result = false;
 
@@ -314,12 +345,12 @@ public class EnemyBlock : MonoBehaviour
 
                 if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
                 {
-                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock)
+                    if (GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].CheckBlock)
                     {
 
-                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX,nextY].CheckBlock = true;
-                        GameManager.Instance.BlockManager.ThisCheckEnemyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.BlockManager.EnemyCheckBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
+                        GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].CheckBlock = true;
+                        GameManager.Instance.BlockManager.ThisCheckBlock = GameManager.Instance.BlockManager.AllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.CheckBlocks.Enqueue(GameManager.Instance.BlockManager.AllBlocks[nextX, nextY]);
 
 
                         result = true;
@@ -339,12 +370,12 @@ public class EnemyBlock : MonoBehaviour
 
                 if (nextX >= 0 && nextX < GameManager.BOARDX && nextY >= GameManager.BOARDY / 2 && nextY < GameManager.BOARDY)
                 {
-                    if (GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock)
+                    if (GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].BlockType == blockType && !GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].CheckBlock)
                     {
-                        GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY].CheckBlock = true;
-                        GameManager.Instance.BlockManager.ThisCheckEnemyBlock = GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY];
-                        GameManager.Instance.BlockManager.EnemyCheckBlocks.Enqueue(GameManager.Instance.BlockManager.EnemyAllBlocks[nextX, nextY]);
 
+                        GameManager.Instance.BlockManager.AllBlocks[nextX, nextY].CheckBlock = true;
+                        GameManager.Instance.BlockManager.ThisCheckBlock = GameManager.Instance.BlockManager.AllBlocks[nextX, nextY];
+                        GameManager.Instance.BlockManager.CheckBlocks.Enqueue(GameManager.Instance.BlockManager.AllBlocks[nextX, nextY]);
 
 
                         result = true;
@@ -362,6 +393,7 @@ public class EnemyBlock : MonoBehaviour
     public void CheckedFalse()
     {
         CheckBlock = false;
-        
+
     }
+
 }

@@ -53,6 +53,30 @@ public class GameSetUI : MonoBehaviour
         }
     }
 
+    public void VsWinnerPlayerOpen()
+    {
+        gameObject.SetActive(true);
+        GameManager.Instance.VsMyPlayerBlockManager.GameStart = false;
+        winnerText.text = "당신의 승리";
+        
+    }
+
+    public void VsLosePlayerOpen()
+    {
+        gameObject.SetActive(true);
+        GameManager.Instance.VsMyPlayerBlockManager.GameStart = false;
+        winnerText.text = "당신의 패배";
+
+    }
+
+    public void VsDrowPlayerOpen()
+    {
+        gameObject.SetActive(true);
+        GameManager.Instance.VsMyPlayerBlockManager.GameStart = false;
+        winnerText.text = "비겼습니다";
+
+    }
+
     public void Close()
     {
         gameObject.SetActive(false);
