@@ -9,6 +9,7 @@ public class ObjectManager
     public VsMyPlayer MyPlayer { get; set; }
     Dictionary<int, GameObject> _objects = new Dictionary<int, GameObject>();
 
+    public VsPlayerReadyGo ReadyGo { get; set; }
     public static GameObjectType GetObjectTypeById(int id)
     {
         int type = (id >> 24) & 0x7F;
@@ -102,6 +103,7 @@ public class ObjectManager
 
                     VsPlayerReadyGo vprg= go.GetComponent<VsPlayerReadyGo>();
                     vprg.Id = info.ObjectId;
+                    ReadyGo= vprg;
 
                 }
                 break;

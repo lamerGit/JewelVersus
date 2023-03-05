@@ -60,7 +60,11 @@ class PacketManager
 		_onRecv.Add((ushort)MsgId.SLogin, MakePacket<S_Login>);
 		_handler.Add((ushort)MsgId.SLogin, PacketHandler.S_LoginHandler);		
 		_onRecv.Add((ushort)MsgId.SCreatePlayer, MakePacket<S_CreatePlayer>);
-		_handler.Add((ushort)MsgId.SCreatePlayer, PacketHandler.S_CreatePlayerHandler);
+		_handler.Add((ushort)MsgId.SCreatePlayer, PacketHandler.S_CreatePlayerHandler);		
+		_onRecv.Add((ushort)MsgId.SResetGame, MakePacket<S_ResetGame>);
+		_handler.Add((ushort)MsgId.SResetGame, PacketHandler.S_ResetGameHandler);		
+		_onRecv.Add((ushort)MsgId.SLoginFaile, MakePacket<S_LoginFaile>);
+		_handler.Add((ushort)MsgId.SLoginFaile, PacketHandler.S_LoginFaileHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

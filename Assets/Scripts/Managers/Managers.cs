@@ -5,13 +5,18 @@ using UnityEngine;
 public class Managers : MonoBehaviour
 {
     static Managers s_instance; // 유일성이 보장된다
-    static Managers Instance { get { Init(); return s_instance; } } // 유일한 매니저를 갖고온다
+    public static Managers Instance { get { Init(); return s_instance; } } // 유일한 매니저를 갖고온다
 
     #region Contents
     ObjectManager _obj = new ObjectManager();
     NetworkManager _network = new NetworkManager();
+    WebManager _web = new WebManager();
+
     public static ObjectManager Object { get { return Instance._obj; } }
     public static NetworkManager Network { get { return Instance._network; } }
+    public static WebManager Web { get { return Instance._web; } }
+
+
 	#endregion
 
 	#region Core
@@ -50,7 +55,7 @@ public class Managers : MonoBehaviour
             DontDestroyOnLoad(go);
             s_instance = go.GetComponent<Managers>();
 
-            s_instance._network.Init();
+  
             s_instance._data.Init();
             s_instance._pool.Init();
         }		

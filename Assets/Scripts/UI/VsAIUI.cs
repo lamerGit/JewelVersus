@@ -55,7 +55,7 @@ public class VsAIUI : MonoBehaviour
         aiIncrease.onClick.AddListener(OnInscrease);
         aiDecrease.onClick.AddListener(OnDecrease);
 
-       
+        gameObject.SetActive(false );
     }
 
     private void Start()

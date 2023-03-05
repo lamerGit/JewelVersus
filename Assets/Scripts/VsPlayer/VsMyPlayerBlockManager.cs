@@ -33,7 +33,7 @@ public class VsMyPlayerBlockManager : MonoBehaviour
 
     Queue<VsPlayerBullet> bullets = new Queue<VsPlayerBullet>();
 
-    GameSetUI _gameSetUI;
+    VsPlayerGameSetUI _vsPlayergameSetUI;
 
     RectTransform _enemyImageRect;
 
@@ -60,9 +60,9 @@ public class VsMyPlayerBlockManager : MonoBehaviour
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
-    public GameSetUI GameSetUI
+    public VsPlayerGameSetUI VsPlayerGameSetUI
     {
-        get { return _gameSetUI; }
+        get { return _vsPlayergameSetUI; }
     }
 
     public RectTransform EnemyImageRect
@@ -187,8 +187,8 @@ public class VsMyPlayerBlockManager : MonoBehaviour
 
         _enemyImageRect = FindObjectOfType<EnemyImage>().GetComponent<RectTransform>();
 
-        _gameSetUI = FindObjectOfType<GameSetUI>();
-        _gameSetUI.Close();
+        _vsPlayergameSetUI = FindObjectOfType<VsPlayerGameSetUI>();
+        _vsPlayergameSetUI.Close();
 
 
     }

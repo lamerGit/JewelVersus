@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
 using System;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -19,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     VsMyPlayerBlockManager vsMyPlayerBlockManager = null;
     VsPlayerBlockManager vsPlayerBlockManager = null;
 
- 
+    public InfoUI InfoUI { get; set; } = null;
 
     public static float[] levelSpeed = new float[20] { 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f, 0.09f, 0.08f, 0.07f, 0.06f, 0.05f, 0.04f, 0.03f, 0.02f, 0.01f, 0.009f };
 
@@ -88,9 +89,28 @@ public class GameManager : Singleton<GameManager>
 
     protected override void Initialize()
     {
-        _mycanvas = GameObject.Find("MyCanvas").GetComponent<Canvas>();
-        Managers.Clear();
+        Scene scene = SceneManager.GetActiveScene();
+
+        //Debug.Log(scene.buildIndex);
+        if (scene.buildIndex == (int)SceneEnum.VsPlayer)
+        {
+            _mycanvas = GameObject.Find("MyCanvas").GetComponent<Canvas>();
+            Managers.Clear();
+        }
+
+        
     }
+
+    
+    public void OpenLoginFail()
+    {
+        Canvas canvas= GameObject.Find("Canvas").GetComponent<Canvas>();
+        Managers.Resource.Instantiate("LoginFailMessage",canvas.transform);
+    }
+
+   
+
+    
 
 
 }

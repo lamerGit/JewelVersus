@@ -4,6 +4,7 @@ using ServerCore;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 class PacketHandler
 {
@@ -112,7 +113,7 @@ class PacketHandler
         S_Winner winnerPacket = (S_Winner)packet;
 
         
-        GameManager.Instance.VsMyPlayerBlockManager.GameSetUI.VsWinnerPlayerOpen();
+        GameManager.Instance.VsMyPlayerBlockManager.VsPlayerGameSetUI.VsWinnerPlayerOpen();
         
     }
 
@@ -120,14 +121,14 @@ class PacketHandler
     {
         S_Lose losePacket = (S_Lose)packet;
 
-        GameManager.Instance.VsMyPlayerBlockManager.GameSetUI.VsLosePlayerOpen();
+        GameManager.Instance.VsMyPlayerBlockManager.VsPlayerGameSetUI.VsLosePlayerOpen();
     }
 
     public static void S_DrowHandler(PacketSession session, IMessage packet)
     {
         S_Drow drowPacket = (S_Drow)packet;
 
-        GameManager.Instance.VsMyPlayerBlockManager.GameSetUI.VsDrowPlayerOpen();
+        GameManager.Instance.VsMyPlayerBlockManager.VsPlayerGameSetUI.VsDrowPlayerOpen();
     }
     public static void S_PingHandler(PacketSession session, IMessage packet)
     {
@@ -211,7 +212,7 @@ class PacketHandler
     {
         Debug.Log("S_ConnectedHandler");
         C_Login loginPacket = new C_Login();
-        loginPacket.UniqueId = SystemInfo.deviceUniqueIdentifier;
+        loginPacket.UniqueId = Managers.Network.Token;
 
         Managers.Network.Send(loginPacket);
     }
@@ -231,9 +232,12 @@ class PacketHandler
         }else
         {
             LobbyPlayerInfo info = loginPacket.Players[0];
-            C_EnterGame enterGamePacket =new C_EnterGame();
-            enterGamePacket.Name= info.Name;
-            Managers.Network.Send(enterGamePacket);
+            Managers.Network.MyStatInfo.MergeFrom(info.StatInfo);
+            Managers.Network.LobbyPlayerInfo.MergeFrom(info);
+            GameManager.Instance.InfoUI.RefreshInfo();
+            //C_EnterGame enterGamePacket =new C_EnterGame();
+            //enterGamePacket.Name= info.Name;
+            //Managers.Network.Send(enterGamePacket);
         }
     }
 
@@ -241,16 +245,38 @@ class PacketHandler
     {
         S_CreatePlayer createOkPacket=(S_CreatePlayer)packet;
 
-        if(createOkPacket.Player==null)
+        if (createOkPacket.Player == null)
         {
-            C_CreatePlayer createPacket = new C_CreatePlayer();
-            createPacket.Name = $"Player_{Random.Range(0, 10000).ToString("0000")}";
-            Managers.Network.Send(createPacket);
-        }else
-        {
-            C_EnterGame enterGamePacket = new C_EnterGame();
-            enterGamePacket.Name = createOkPacket.Player.Name;
-            Managers.Network.Send(enterGamePacket);
+            //C_CreatePlayer createPacket = new C_CreatePlayer();
+            //createPacket.Name = $"Player_{Random.Range(0, 10000).ToString("0000")}";
+            //Managers.Network.Send(createPacket);
+            LobbyPlayerInfo info = createOkPacket.Player;
+            Managers.Network.MyStatInfo.MergeFrom(info.StatInfo);
+            Managers.Network.LobbyPlayerInfo.MergeFrom(info);
+            GameManager.Instance.InfoUI.RefreshInfo();
         }
+        else
+        {
+            LobbyPlayerInfo info = createOkPacket.Player;
+            Managers.Network.MyStatInfo.MergeFrom(info.StatInfo);
+            Managers.Network.LobbyPlayerInfo.MergeFrom(info);
+            GameManager.Instance.InfoUI.RefreshInfo();
+            //C_EnterGame enterGamePacket = new C_EnterGame();
+            //enterGamePacket.Name = createOkPacket.Player.Name;
+            //Managers.Network.Send(enterGamePacket);
+        }
+    }
+
+    public static void S_ResetGameHandler(PacketSession session, IMessage packet)
+    {
+        Managers.Object.ReadyGo.Ready();
+        GameManager.Instance.VsMyPlayerBlockManager.VsPlayerGameSetUI.Close();
+        
+    }
+
+    public static void S_LoginFaileHandler(PacketSession session, IMessage packet)
+    {
+        Managers.Network.DoubleConnect = true;
+        GameManager.Instance.OpenLoginFail();
     }
 }

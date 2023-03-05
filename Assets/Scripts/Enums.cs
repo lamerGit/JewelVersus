@@ -5,8 +5,10 @@ using UnityEngine;
 
 public enum SceneEnum
 {
-    Main=0,
+    Login=0,
+    Robby,
     VsAI,
+    VsPlayer,
     VsAILoading
 }
 

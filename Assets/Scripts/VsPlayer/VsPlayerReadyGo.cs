@@ -20,6 +20,12 @@ public class VsPlayerReadyGo : MonoBehaviour
         StartCoroutine(GameStart());
     }
 
+    public void Ready()
+    {
+        gameObject.SetActive(true);
+        textGui.text = "READY";
+    }
+
     IEnumerator GameStart()
     {
         textGui.text = "GO!";
